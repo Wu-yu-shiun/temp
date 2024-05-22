@@ -20,12 +20,10 @@ def ask_model():
     input_content = data.get('content', '')
     model = data.get('model', 'llama2')
 
-    # Generate questions based on the input content
     questions = [
-        "What are the key points of this information?",
+        # "What are the key points of this information?",
         "Does this information mention any people?",
         "Does this information mention any times or dates?",
-        # Add more questions as needed
     ]
 
     answers = []
