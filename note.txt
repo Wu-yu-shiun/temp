@@ -7,7 +7,7 @@ curl -X POST http://34.81.201.69:5000/ask -H "Content-Type: application/json" -d
 // mac terminal test
 curl http://localhost:11434/api/generate -d '{
   "model": "TAIDEQ2K",
-  "prompt": "你好嗎？",
+  "prompt": "跟我講一個笑話",
   "stream": false
 }'
 
