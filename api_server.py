@@ -22,6 +22,8 @@ def ask_model():
 
     questions = [
         # "What are the key points of this information?",
+        "這個資訊當中有提到誰？",
+        "這個資訊當中有提到什麼時間？",
         "Does this information mention any people?",
         "Does this information mention any times or dates?",
     ]
