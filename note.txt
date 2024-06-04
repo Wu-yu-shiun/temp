@@ -1,6 +1,16 @@
-//terminal
+// mac terminal
 
 curl -X POST http://your-server-ip:5000/ask -H "Content-Type: application/json" -d '{"content": "In a small town, there lived a reclusive artist named Lila. She painted vivid dreams but never shared them. One day, a young boy named Tom stumbled upon her studio. ","model": "llama2","stream": false}'
+
+curl -X POST http://34.81.201.69:5000/ask -H "Content-Type: application/json" -d '{"content": "In a small town, there lived a reclusive artist named Lila. She painted vivid dreams but never shared them. One day, a young boy named Tom stumbled upon her studio. ","model": "TAIDEQ2k","stream": false}'
+
+// mac terminal test
+curl http://localhost:11434/api/generate -d '{
+  "model": "llama2",
+  "prompt": "Why is the sky blue?",
+  "stream": false
+}'
+
 
 //Taide
 https://huggingface.co/taide/Llama3-TAIDE-LX-8B-Chat-Alpha1?fbclid=IwZXh0bgNhZW0CMTEAAR01GMZks9kwtSZo5mD5vmfwoMfZLXF_f7hSafcOG_OrlBqJP-w55IRIarE_aem_Ae_z9-YkWCvejrZZR_MTsuw_e9E6FQJeV6ar6wGSz0nThP8cEtVTtDGlPsBi27Gh7XnRNoGgXO7wG7asnMdQc0xZ
