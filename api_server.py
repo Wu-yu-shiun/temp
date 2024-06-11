@@ -24,6 +24,8 @@ def ask_model():
         # "What are the key points of this information?",
         "這個資訊當中有提到誰？",
         "這個資訊當中有提到什麼時間？",
+        "幫我將這個資訊找幾個關鍵字並且簡單做一下摘要。",
+        "你覺得這個資訊重要嗎？",
         "Does this information mention any people?",
         "Does this information mention any times or dates?",
     ]
