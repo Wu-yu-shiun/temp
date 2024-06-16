@@ -21,13 +21,11 @@ def ask_model():
     model = data.get('model', 'llama2')
 
     questions = [
-        # "What are the key points of this information?",
-        "這個資訊當中有提到誰？",
-        "這個資訊當中有提到什麼時間？",
-        "幫我將這個資訊找幾個關鍵字並且簡單做一下摘要。",
-        "你覺得這個資訊重要嗎？",
-        "Does this information mention any people?",
-        "Does this information mention any times or dates?",
+        "這些通知有沒有提到哪些重要的人？",
+        "這些通知有沒有提到哪些重要的時間？",
+        "挑出三個你認為最重要的通知呈現給我。",
+        "挑出三個你認為最不重要的通知呈現給我。",
+        "幫我將所有的資訊找幾個關鍵字並且簡單做一下摘要。",
     ]
 
     answers = []
