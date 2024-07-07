@@ -18,7 +18,7 @@ def ask_ollama(model, messages, stream=False):
 def ask_model():
     data = request.json
     input_content = data.get('content', '')
-    model = data.get('model', 'Taide')
+    model = data.get('model', 'TaideQ3KL')
 
     questions = [
         "請逐一判斷每一則通知的內容是否重要？判斷完後回答「是」或「否」即可。",
