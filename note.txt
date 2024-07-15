@@ -14,3 +14,6 @@ curl http://localhost:11434/api/generate -d '{
 
 //Taide
 https://huggingface.co/taide/Llama3-TAIDE-LX-8B-Chat-Alpha1?fbclid=IwZXh0bgNhZW0CMTEAAR01GMZks9kwtSZo5mD5vmfwoMfZLXF_f7hSafcOG_OrlBqJP-w55IRIarE_aem_Ae_z9-YkWCvejrZZR_MTsuw_e9E6FQJeV6ar6wGSz0nThP8cEtVTtDGlPsBi27Gh7XnRNoGgXO7wG7asnMdQc0xZ
+
+// exe python script on Github
+curl -s https://raw.githubusercontent.com/Wu-yu-shiun/temp/main/apiserver_q1.py | python3
