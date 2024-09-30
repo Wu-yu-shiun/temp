@@ -21,4 +21,5 @@ curl -s https://raw.githubusercontent.com/Wu-yu-shiun/temp/main/apiserver_q1.py 
 
 //linx kernal
 sudo apt update
-sudo apt-get install build-dep linux libncurses-dev gawk flex bison openssl libssl-dev dkms libelf-dev libudev-dev libpci-dev libiberty-dev autoconf llvm
+(sudo apt-get install build-dep linux libncurses-dev gawk flex bison openssl libssl-dev dkms libelf-dev libudev-dev libpci-dev libiberty-dev autoconf llvm)
+sudo apt-get install libncurses-dev gawk flex bison openssl libssl-dev dkms libelf-dev libudev-dev libpci-dev libiberty-dev autoconf llvm
