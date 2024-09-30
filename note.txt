@@ -17,3 +17,8 @@ https://huggingface.co/taide/Llama3-TAIDE-LX-8B-Chat-Alpha1?fbclid=IwZXh0bgNhZW0
 
 // exe python script on Github
 curl -s https://raw.githubusercontent.com/Wu-yu-shiun/temp/main/apiserver_q1.py | python3
+
+
+//linx kernal
+sudo apt update
+sudo apt install build-essential libncurses-dev bison flex libssl-dev libelf-dev liblz4-tool bc
