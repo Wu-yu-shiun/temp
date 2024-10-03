@@ -81,39 +81,29 @@ SYSCALL_DEFINE2(revstr, int, length, char __user *, str) {
 SYSCALL_DEFINE2(sys_revstr, char __user *, str, size_t, len) {
     char *buffer;
     int i;
-
-    // 動態分配內存，分配失敗則返回 -ENOMEM
     buffer = kmalloc(sizeof(char) * (len + 1), GFP_KERNEL);
     if (!buffer) {
         return -ENOMEM;
     }
-
-    // 從使用者空間複製字串到核心空間，失敗則釋放內存並返回 -EFAULT
     if (copy_from_user(buffer, str, len)) {
         kfree(buffer);
         return -EFAULT;
     }
-
-    // 添加字符串的結尾符號 '\0'
     buffer[len] = '\0';
     printk(KERN_INFO "The origin string: %s\n", buffer);
 
-    // 反轉字串
+    // reverse string
     for (i = 0; i < len / 2; i++) {
         char temp = buffer[i];
         buffer[i] = buffer[len - i - 1];
         buffer[len - i - 1] = temp;
     }
-
     printk(KERN_INFO "The reversed string: %s\n", buffer);
 
-    // 將結果複製回使用者空間，失敗則釋放內存並返回 -EFAULT
     if (copy_to_user(str, buffer, len)) {
         kfree(buffer);
         return -EFAULT;
     }
-
-    // 釋放內存
     kfree(buffer);
     return 0;
 }
