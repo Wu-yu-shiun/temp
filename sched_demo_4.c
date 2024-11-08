@@ -12,16 +12,18 @@ void busy_wait(double seconds) {
     while (((double)clock() / CLOCKS_PER_SEC) - start < seconds);
 }
 
-// Thread function
+// 全域變數
+pthread_barrier_t barrier;
+double time_wait; // 確認在其他地方使用時已宣告
+
 void* thread_func(void* arg) {
-    int id = *(int*)arg;
+    // 確保引數被正確轉換並使用
     pthread_barrier_wait(&barrier);
-
+    // 模擬工作
     for (int i = 0; i < 3; i++) {
-        printf("Thread %d is starting\n", id);
-        busy_wait(time_wait);  // Busy waiting for the specified time
+        printf("Thread %d is starting\n", *(int*)arg);
+        busy_wait(time_wait);
     }
-
     return NULL;
 }
 
