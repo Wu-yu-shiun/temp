@@ -36,9 +36,9 @@ void *thread_fun(void *arg) {
 }
 
 int main(int argc, char **argv) {
-	int num_thread;
-	char *policies;
-	char *priorities;
+	int num_thread = 0;
+	char *policies = NULL;
+	char *priorities = NULL;
 
 	/* 1. Parse program arguments */
 	int opt;
