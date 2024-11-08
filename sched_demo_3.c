@@ -1,3 +1,4 @@
+#define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
@@ -35,11 +36,11 @@ void *thread_func(void *arg){
         busy_wait(info->time_wait);
     }
     /* 3. Exit the function  */
-    return NULL
+    return NULL;
 }
 
 // main thread
-int main() {
+int main(int argc, char *argv[]) {
     int num_threads = 0;
     float time_wait = 0;
     char *policies_str = NULL;
@@ -98,7 +99,7 @@ int main() {
     CPU_SET(3, &cpuset);
     sched_setaffinity(getpid(), sizeof(cpuset), &cpuset);
     
-    for (int i = 0; i < <num_threads>; i++) {
+    for (int i = 0; i < num_threads; i++) {
         thread_info[i].thread_id = i;
         thread_info[i].policy = policies[i];
         thread_info[i].priority = priorities[i];
@@ -115,7 +116,7 @@ int main() {
         param.sched_priority = thread_info[i].priority;
         pthread_attr_setschedparam(&attr, &param);
 
-        if (pthread_create(&threads[i], &attr, worker_thread, &thread_infos[i]) != 0) {
+        if (pthread_create(&threads[i], &attr, thread_func, &thread_info[i]) != 0) {
             fprintf(stderr, "Error creating thread %d: %s\n", i, strerror(errno));
             return EXIT_FAILURE;
         }
