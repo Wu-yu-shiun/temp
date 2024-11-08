@@ -34,8 +34,7 @@ void *thread_func(void *arg) {
 
     // Perform the task 3 times
     for (int i = 0; i < 3; i++) {
-        printf("Thread %d is starting with policy %d and priority %d\n",
-               info->thread_id, info->policy, info->priority);
+        printf("Thread %d is starting\n", info->thread_id);
         busy_wait(info->time_wait);
     }
 
