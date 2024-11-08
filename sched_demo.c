@@ -139,3 +139,10 @@ int main(int argc, char *argv[]) {
 
     return 0;
 }
+
+/*
+cpu_set_t cpuset;
+CPU_ZERO(&cpuset);
+CPU_SET(3, &cpuset);
+sched_setaffinity(getpid(), sizeof(cpuset), &cpuset);
+*/
