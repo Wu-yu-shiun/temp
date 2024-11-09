@@ -8,7 +8,6 @@
 #include <errno.h>
 #include <time.h>
 
-
 typedef struct {
     int thread_id;
     int policy;
@@ -41,11 +40,6 @@ void *thread_func(void *arg){
 
 // main thread
 int main(int argc, char *argv[]) {
-    int num_threads = 0;
-    float time_wait = 0;
-    char *policies_str = NULL;
-    char *priorities_str = NULL;
-    /* 1. Parse program arguments */
     int opt;
     while ((opt = getopt(argc, argv, "n:t:s:p:")) != -1) {
         switch (opt) {
@@ -56,36 +50,33 @@ int main(int argc, char *argv[]) {
                 time_wait = atof(optarg);
                 break;
             case 's':
-                policies_str = optarg;
+                policies = malloc(num_threads * sizeof(char *));
+                char *policy_token = strtok(optarg, ",");
+                for (int i = 0; i < num_threads; i++) {
+                    policies[i] = strdup(policy_token);
+                    policy_token = strtok(NULL, ",");
+                }
                 break;
             case 'p':
-                priorities_str = optarg;
+                priorities = malloc(num_threads * sizeof(int));
+                char *priority_token = strtok(optarg, ",");
+                for (int i = 0; i < num_threads; i++) {
+                    priorities[i] = atoi(priority_token);
+                    priority_token = strtok(NULL, ",");
+                }
                 break;
         }
     }
 
-    // Parse scheduling policies
-    int policies[num_threads];
-    int priorities[num_threads];
-    char *token;
-    token = strtok(policies_str, ",");
-    for (int i = 0; i < num_threads && token != NULL; i++) {
-        if (strcmp(token, "NORMAL") == 0) {
-            policies[i] = SCHED_OTHER;
-        } else if (strcmp(token, "FIFO") == 0) {
-            policies[i] = SCHED_FIFO;
-        } else {
-            fprintf(stderr, "Invalid policy: %s\n", token);
-            exit(EXIT_FAILURE);
-        }
-        token = strtok(NULL, ",");
+    // Debug prints for verification
+    fprintf(stderr, "num_threads: %d\n", num_threads);
+    fprintf(stderr, "time_wait: %.2f\n", time_wait);
+    for (int i = 0; i < num_threads; i++) {
+        fprintf(stderr, "policies[%d]: %s\n", i, policies[i]);
+        fprintf(stderr, "priorities[%d]: %d\n", i, priorities[i]);
     }
-
-    token = strtok(priorities_str, ",");
-    for (int i = 0; i < num_threads && token != NULL; i++) {
-        priorities[i] = atoi(token);
-        token = strtok(NULL, ",");
-    }
+    // Debug prints for verification
+    
 
     /* 2. Create <num_threads> worker threads */
     pthread_barrier_t barrier;
