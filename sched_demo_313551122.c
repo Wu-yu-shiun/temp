@@ -18,24 +18,25 @@ typedef struct {
 
 pthread_barrier_t barrier;
 
-void busy_wait(float seconds) {
-    clock_t start_time = clock();
-    clock_t end_time = start_time + (clock_t)(seconds * CLOCKS_PER_SEC);
-    while (clock() < end_time) {
-        // Busy waiting
-    }
-}
+
 
 // worker thread
 void *thread_func(void *arg){
     thread_info_t *info = (thread_info_t *)arg;
+
     /* 1. Wait until all threads are ready */
     pthread_barrier_wait(&barrier);
+
     /* 2. Do the task */ 
     for (int i = 0; i < 3; i++) {
         printf("Thread %d is starting\n", info->thread_num);
-        busy_wait(info->time_wait);
+        clock_t start_time = clock();
+        clock_t end_time = start_time + (clock_t)(info->time_wait * CLOCKS_PER_SEC);
+        while (clock() < end_time){
+            // Busy waiting
+        }
     }
+
     /* 3. Exit the function  */
     return NULL;
 }
@@ -83,7 +84,7 @@ int main(int argc, char *argv[]) {
         priority_token = strtok(NULL, ",");
     }
 
-    // Debug prints for verification
+    // Debug
     // fprintf(stderr, "num_threads: %d\n", num_threads);
     // fprintf(stderr, "time_wait: %.2f\n", time_wait);
     // for (int i = 0; i < num_threads; i++) {
@@ -93,33 +94,31 @@ int main(int argc, char *argv[]) {
     
 
     /* 2. Create <num_threads> worker threads */
-    thread_info_t thread_info[num_threads]; // 
-	pthread_attr_t pthread_attr[num_threads];
-	struct sched_param param[num_threads];
-	pthread_barrier_init(&barrier, NULL, num_threads+1);
+    thread_info_t thread_info[num_threads];
+		pthread_attr_t pthread_attr[num_threads];
+		struct sched_param param[num_threads];
+		pthread_barrier_init(&barrier, NULL, num_threads+1);
     
     /* 3. Set CPU affinity */
     cpu_set_t cpuset;
     CPU_ZERO(&cpuset);
-    CPU_SET(3, &cpuset);
+    CPU_SET(1, &cpuset);
     sched_setaffinity(getpid(), sizeof(cpuset), &cpuset);
 
-    
-    for (int i = 0; i < num_threads; i++) {   
+    for (int i = 0; i < num_threads; i++) { 
         /* 4. Set the attributes to each thread */
         pthread_attr_init(&pthread_attr[i]);
-		thread_info[i].thread_num = i;
-		thread_info[i].policy = policies[i];
-		thread_info[i].priority = priorities[i];
-		thread_info[i].time_wait = time_wait;
-		param[i].sched_priority = thread_info[i].priority;
-		pthread_attr_setinheritsched(&pthread_attr[i], PTHREAD_EXPLICIT_SCHED);
-		pthread_attr_setschedpolicy(&pthread_attr[i], thread_info[i].policy);
-		pthread_attr_setschedparam(&pthread_attr[i], &param[i]);
-		pthread_create(&thread_info[i].thread_id, &pthread_attr[i], thread_func, &thread_info[i]);
-		pthread_setaffinity_np(thread_info[i].thread_id, sizeof(cpu_set_t), &cpuset);
-
-        
+				thread_info[i].thread_num = i;
+				thread_info[i].policy = policies[i];
+				thread_info[i].priority = priorities[i];
+				thread_info[i].time_wait = time_wait;
+				param[i].sched_priority = thread_info[i].priority;
+	
+				pthread_attr_setinheritsched(&pthread_attr[i], PTHREAD_EXPLICIT_SCHED);
+				pthread_attr_setschedpolicy(&pthread_attr[i], thread_info[i].policy);
+				pthread_attr_setschedparam(&pthread_attr[i], &param[i]);
+				pthread_create(&thread_info[i].thread_id, &pthread_attr[i], thread_func, &thread_info[i]);
+				pthread_setaffinity_np(thread_info[i].thread_id, sizeof(cpu_set_t), &cpuset);    
     }
     
     /* 5. Start all threads at once */
@@ -130,5 +129,6 @@ int main(int argc, char *argv[]) {
         pthread_join(thread_info[i].thread_id, NULL);
     }
     pthread_barrier_destroy(&barrier);
+
     return 0;
 }
