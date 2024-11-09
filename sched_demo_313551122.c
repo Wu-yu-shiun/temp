@@ -40,6 +40,12 @@ void *thread_func(void *arg){
 
 // main thread
 int main(int argc, char *argv[]) {
+    /* 1. Parse program arguments */
+    int num_threads = 0;
+    float time_wait = 0;
+    char **policies = NULL;
+    int *priorities = NULL;
+    
     int opt;
     while ((opt = getopt(argc, argv, "n:t:s:p:")) != -1) {
         switch (opt) {
