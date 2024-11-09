@@ -92,7 +92,10 @@ int main(int argc, char *argv[]) {
     
 
     /* 2. Create <num_threads> worker threads */
-    
+    thread_info_t thread_info[num_threads]; // 
+	pthread_attr_t pthread_attr[num_threads];
+	struct sched_param param[num_threads];
+	pthread_barrier_init(&barrier, NULL, num_threads+1);
     
     /* 3. Set CPU affinity */
     cpu_set_t cpuset;
@@ -101,9 +104,20 @@ int main(int argc, char *argv[]) {
     sched_setaffinity(getpid(), sizeof(cpuset), &cpuset);
 
     
-    for (int i = 0; i < num_threads; i++) {
-        
+    for (int i = 0; i < num_threads; i++) {   
         /* 4. Set the attributes to each thread */
+        pthread_attr_init(&pthread_attr[i]);
+		thread_info[i].thread_num = i;
+		thread_info[i].sched_policy = policies[i];
+		thread_info[i].sched_priority = priorities[i];
+		param[i].sched_priority = thread_info[i].sched_priority;
+        
+		pthread_attr_setinheritsched(&pthread_attr[i], PTHREAD_EXPLICIT_SCHED);
+		pthread_attr_setschedpolicy(&pthread_attr[i], thread_info[i].sched_policy);
+		pthread_attr_setschedparam(&pthread_attr[i], &param[i]);
+		pthread_create(&thread_info[i].thread_id, &pthread_attr[i], thread_fun, (void *)&thread_info[i]);
+		pthread_setaffinity_np(thread_info[i].thread_id, sizeof(cpu_set_t), &cpuset);
+
         
     }
     
