@@ -44,7 +44,7 @@ int main(int argc, char *argv[]) {
     int num_threads = 0;
     float time_wait = 0;
     char **policies = NULL;
-    int *priorities = NULL;
+    char **priorities = NULL;
     
     int opt;
     while ((opt = getopt(argc, argv, "n:t:s:p:")) != -1) {
@@ -64,10 +64,10 @@ int main(int argc, char *argv[]) {
                 }
                 break;
             case 'p':
-                priorities = malloc(num_threads * sizeof(int));
+                priorities = malloc(num_threads * sizeof(char *));
                 char *priority_token = strtok(optarg, ",");
                 for (int i = 0; i < num_threads; i++) {
-                    priorities[i] = atoi(priority_token);
+                    priorities[i] = strdup(priority_token);
                     priority_token = strtok(NULL, ",");
                 }
                 break;
