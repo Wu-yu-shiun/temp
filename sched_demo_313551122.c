@@ -82,12 +82,12 @@ int main(int argc, char *argv[]) {
     }
 
     // Debug prints for verification
-    fprintf(stderr, "num_threads: %d\n", num_threads);
-    fprintf(stderr, "time_wait: %.2f\n", time_wait);
-    for (int i = 0; i < num_threads; i++) {
-        fprintf(stderr, "policies[%d]: %s (%d)\n", i, (policies[i] == SCHED_OTHER) ? "NORMAL" : "FIFO", policies[i]);
-        fprintf(stderr, "priorities[%d]: %d\n", i, priorities[i]);
-    }
+    // fprintf(stderr, "num_threads: %d\n", num_threads);
+    // fprintf(stderr, "time_wait: %.2f\n", time_wait);
+    // for (int i = 0; i < num_threads; i++) {
+    //     fprintf(stderr, "policies[%d]: %s (%d)\n", i, (policies[i] == SCHED_OTHER) ? "NORMAL" : "FIFO", policies[i]);
+    //     fprintf(stderr, "priorities[%d]: %d\n", i, priorities[i]);
+    // }
     
 
     /* 2. Create <num_threads> worker threads */
