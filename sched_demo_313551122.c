@@ -18,8 +18,6 @@ typedef struct {
 
 pthread_barrier_t barrier;
 
-
-
 // worker thread
 void *thread_func(void *arg){
     thread_info_t *info = (thread_info_t *)arg;
@@ -92,12 +90,11 @@ int main(int argc, char *argv[]) {
     //     fprintf(stderr, "priorities[%d]: %d\n", i, priorities[i]);
     // }
     
-
     /* 2. Create <num_threads> worker threads */
     thread_info_t thread_info[num_threads];
-		pthread_attr_t pthread_attr[num_threads];
-		struct sched_param param[num_threads];
-		pthread_barrier_init(&barrier, NULL, num_threads+1);
+	pthread_attr_t pthread_attr[num_threads];
+	struct sched_param param[num_threads];
+	pthread_barrier_init(&barrier, NULL, num_threads+1);
     
     /* 3. Set CPU affinity */
     cpu_set_t cpuset;
@@ -105,20 +102,20 @@ int main(int argc, char *argv[]) {
     CPU_SET(1, &cpuset);
     sched_setaffinity(getpid(), sizeof(cpuset), &cpuset);
 
-    for (int i = 0; i < num_threads; i++) { 
+    for (int i = 0; i < num_threads; i++) {
         /* 4. Set the attributes to each thread */
         pthread_attr_init(&pthread_attr[i]);
-				thread_info[i].thread_num = i;
-				thread_info[i].policy = policies[i];
-				thread_info[i].priority = priorities[i];
-				thread_info[i].time_wait = time_wait;
-				param[i].sched_priority = thread_info[i].priority;
+		thread_info[i].thread_num = i;
+		thread_info[i].policy = policies[i];
+		thread_info[i].priority = priorities[i];
+		thread_info[i].time_wait = time_wait;
+		param[i].sched_priority = thread_info[i].priority;
 	
-				pthread_attr_setinheritsched(&pthread_attr[i], PTHREAD_EXPLICIT_SCHED);
-				pthread_attr_setschedpolicy(&pthread_attr[i], thread_info[i].policy);
-				pthread_attr_setschedparam(&pthread_attr[i], &param[i]);
-				pthread_create(&thread_info[i].thread_id, &pthread_attr[i], thread_func, &thread_info[i]);
-				pthread_setaffinity_np(thread_info[i].thread_id, sizeof(cpu_set_t), &cpuset);    
+		pthread_attr_setinheritsched(&pthread_attr[i], PTHREAD_EXPLICIT_SCHED);
+		pthread_attr_setschedpolicy(&pthread_attr[i], thread_info[i].policy);
+		pthread_attr_setschedparam(&pthread_attr[i], &param[i]);
+		pthread_create(&thread_info[i].thread_id, &pthread_attr[i], thread_func, &thread_info[i]);
+		pthread_setaffinity_np(thread_info[i].thread_id, sizeof(cpu_set_t), &cpuset);    
     }
     
     /* 5. Start all threads at once */
