@@ -43,9 +43,9 @@ int main(int argc, char *argv[]) {
     /* 1. Parse program arguments */
     int num_threads = 0;
     float time_wait = 0;
-    char **policies = NULL;
-    char **priorities = NULL;
-    
+    char *policies_str = NULL;
+    char *priorities_str = NULL;
+
     int opt;
     while ((opt = getopt(argc, argv, "n:t:s:p:")) != -1) {
         switch (opt) {
@@ -56,32 +56,38 @@ int main(int argc, char *argv[]) {
                 time_wait = atof(optarg);
                 break;
             case 's':
-                policies = malloc(num_threads * sizeof(char *));
-                char *policy_token = strtok(optarg, ",");
-                for (int i = 0; i < num_threads; i++) {
-                    policies[i] = strdup(policy_token);
-                    policy_token = strtok(NULL, ",");
-                }
+                policies_str = optarg;
                 break;
             case 'p':
-                priorities = malloc(num_threads * sizeof(char *));
-                char *priority_token = strtok(optarg, ",");
-                for (int i = 0; i < num_threads; i++) {
-                    priorities[i] = strdup(priority_token);
-                    priority_token = strtok(NULL, ",");
-                }
+                priorities_str = optarg;
                 break;
         }
+    }
+
+    int policies[num_threads];
+    int priorities[num_threads];
+    char *policy_token = strtok(policies_str, ",");
+    for (int i = 0; i < num_threads; i++) {
+        if (strcmp(policy_token, "NORMAL") == 0) {
+            policies[i] = SCHED_OTHER;
+        } else if (strcmp(policy_token, "FIFO") == 0) {
+            policies[i] = SCHED_FIFO;
+        }
+        policy_token = strtok(NULL, ",");
+    }
+    char *priority_token = strtok(priorities_str, ",");
+    for (int i = 0; i < num_threads; i++) {
+        priorities[i] = atoi(priority_token);
+        priority_token = strtok(NULL, ",");
     }
 
     // Debug prints for verification
     fprintf(stderr, "num_threads: %d\n", num_threads);
     fprintf(stderr, "time_wait: %.2f\n", time_wait);
     for (int i = 0; i < num_threads; i++) {
-        fprintf(stderr, "policies[%d]: %s\n", i, policies[i]);
+        fprintf(stderr, "policies[%d]: %s (%d)\n", i, (policies[i] == SCHED_OTHER) ? "NORMAL" : "FIFO", policies[i]);
         fprintf(stderr, "priorities[%d]: %d\n", i, priorities[i]);
     }
-    // Debug prints for verification
     
 
     /* 2. Create <num_threads> worker threads */
