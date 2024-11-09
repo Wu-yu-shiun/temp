@@ -4,7 +4,7 @@ TARGET= sched_demo_313551122
 
 all: $(TARGET)
 
-$(TARGET): sched_demo_<student_id>.c
+$(TARGET): sched_demo_313551122.c
     $(CC) $(CFLAGS) -o $(TARGET) sched_demo_313551122.c -lpthread
 
 clean:
