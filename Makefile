@@ -14,7 +14,6 @@ clean:
 
 //hw3
 
-# 目標模組名稱
 obj-m := kfetch_mod_313551122.o
 PWD := $(CURDIR)
 
