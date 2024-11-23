@@ -1,3 +1,5 @@
+//hw2
+
 CC= gcc
 CFLAGS= -Wall -Wextra -Werror -O3 -Wpedantic
 TARGET= sched_demo_313551122
@@ -9,3 +11,18 @@ $(TARGET): sched_demo_313551122.c
 
 clean:
 	rm -f $(TARGET)
+
+//hw3
+
+# 目標模組名稱
+obj-m := kfetch_mod_313551122.o
+PWD := $(CURDIR)
+
+all:
+    make -C /lib/modules/$(shell uname -r)/build M=$(PWD) modules
+clean:
+    make -C /lib/modules/$(shell uname -r)/build M=$(PWD) clean
+load:
+    sudo insmod kfetch_mod_313551122.ko
+unload:
+    sudo rmmod kfetch_mod_313551122
