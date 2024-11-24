@@ -44,15 +44,15 @@ static ssize_t kfetch_read(struct file *file, char __user *user_buf, size_t len,
 
     mutex_lock(&kfetch_mutex);
 
-    // 輸出 logo
+    // 輸出 logo，\033[33m變黃，\033[0m變白
     buf_len += scnprintf(kfetch_buf + buf_len, KFETCH_BUF_SIZE - buf_len,
                          "      .-.     \n"
                          "     (.. |    \n"
-                         "     <>  |    \n"
+                         "     \033[33m<>\033[33m  |    \n"
                          "    / --- \   \n"
                          "   ( |   | )  \n"
-                         " |\\_)__(_//| \n"
-                         "<__)------(__>\n");
+                         " \033[33m|\\033[33m\_)__(_/\033[33m/|\033[33m \n"
+                         "\033[33m<__)\033[33m------\033[33m(__>\033[33m\n");
 
     // 加入 hostname 和分隔線
     buf_len += scnprintf(kfetch_buf + buf_len, KFETCH_BUF_SIZE - buf_len,
