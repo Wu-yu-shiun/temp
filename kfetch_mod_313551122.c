@@ -46,13 +46,13 @@ static ssize_t kfetch_read(struct file *file, char __user *user_buf, size_t len,
 
     // 輸出 logo
     buf_len += scnprintf(kfetch_buf + buf_len, KFETCH_BUF_SIZE - buf_len,
-                         "  .--.\n"
-                         " (o.o)\n"
-                         " <  >\n"
-                         " /---\\\n"
-                         "( | | )\n"
-                         "\\\\_/__//\n"
-                         "<__|__>\n");
+                         "      .-.     \n"
+                         "     (.. |    \n"
+                         "     <>  |    \n"
+                         "    / --- \   \n"
+                         "   ( |   | )  \n"
+                         " |\\_)__(_//| \n"
+                         "<__)------(__>\n");
 
     // 加入 hostname 和分隔線
     buf_len += scnprintf(kfetch_buf + buf_len, KFETCH_BUF_SIZE - buf_len,
