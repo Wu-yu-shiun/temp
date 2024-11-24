@@ -8,7 +8,9 @@
 #include <linux/utsname.h>
 #include <linux/sched/signal.h>
 #include <linux/jiffies.h>
-#include <linux/slab.h> 
+#include <linux/slab.h>
+#include <linux/mm.h>
+#include <linux/device.h>
 
 #define KFETCH_DEV_NAME "kfetch"
 #define KFETCH_BUF_SIZE 1024
@@ -89,7 +91,7 @@ static ssize_t kfetch_read(struct file *file, char __user *user_buf, size_t len,
 
     if (info_mask & KFETCH_UPTIME) {
         buf_len += scnprintf(kfetch_buf + buf_len, KFETCH_BUF_SIZE - buf_len,
-                             "Uptime: %lu mins\n", jiffies_to_msecs(get_jiffies_64()) / 60000);
+                             "Uptime: %lu mins\n", (unsigned long) jiffies_to_msecs(get_jiffies_64()) / 60000);
     }
 
     mutex_unlock(&kfetch_mutex);
@@ -136,7 +138,6 @@ static struct file_operations kfetch_ops = {
     .release = kfetch_release,
 };
 
-// 初始化模組
 static int __init kfetch_init(void) {
     major_number = register_chrdev(0, KFETCH_DEV_NAME, &kfetch_ops);
     if (major_number < 0) {
@@ -144,27 +145,37 @@ static int __init kfetch_init(void) {
         return major_number;
     }
 
-    cls = class_create(THIS_MODULE, KFETCH_DEV_NAME);
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 4, 0)
+    cls = class_create(KFETCH_DEV_NAME); // 較新版本只需提供名稱
+#else
+    cls = class_create(THIS_MODULE, KFETCH_DEV_NAME); // 舊版本需要指定模組
+#endif
     if (IS_ERR(cls)) {
         unregister_chrdev(major_number, KFETCH_DEV_NAME);
         return PTR_ERR(cls);
     }
 
-    device_create(cls, NULL, MKDEV(major_number, 0), NULL, KFETCH_DEV_NAME);
+    if (device_create(cls, NULL, MKDEV(major_number, 0), NULL, KFETCH_DEV_NAME) == NULL) {
+        pr_alert("Failed to create device\n");
+        class_destroy(cls);
+        unregister_chrdev(major_number, KFETCH_DEV_NAME);
+        return -1;
+    }
 
-    kfetch_buf = kmalloc(KFETCH_BUF_SIZE, GFP_KERNEL); // 分配緩衝區
+    kfetch_buf = kmalloc(KFETCH_BUF_SIZE, GFP_KERNEL);
     if (!kfetch_buf) {
+        pr_alert("Failed to allocate memory\n");
         device_destroy(cls, MKDEV(major_number, 0));
         class_destroy(cls);
         unregister_chrdev(major_number, KFETCH_DEV_NAME);
         return -ENOMEM;
     }
 
-    pr_info("kfetch module loaded with device major number %d\n", major_number);
+    pr_info("kfetch module loaded successfully with major number %d\n", major_number);
     return 0;
 }
 
-// 清理模組
+
 static void __exit kfetch_exit(void) {
     kfree(kfetch_buf); // 釋放緩衝區
     device_destroy(cls, MKDEV(major_number, 0));
