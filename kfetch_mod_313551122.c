@@ -48,11 +48,11 @@ static ssize_t kfetch_read(struct file *file, char __user *user_buf, size_t len,
     buf_len += scnprintf(kfetch_buf + buf_len, KFETCH_BUF_SIZE - buf_len,
                          "      .-.     \n"
                          "     (.. |    \n"
-                         "     \033[33m<>\033[33m  |    \n"
+                         "     \033[33m<>\033[0m  |    \n"
                          "    / --- \   \n"
                          "   ( |   | )  \n"
-                         " \033[33m|\\033[33m\_)__(_/\033[33m/|\033[33m \n"
-                         "\033[33m<__)\033[33m------\033[33m(__>\033[33m\n");
+                         " \033[33m|\\033[0m\_)__(_/\033[33m/|\033[0m \n"
+                         "\033[33m<__)\033[0m------\033[33m(__>\033[0m\n");
 
     // 加入 hostname 和分隔線
     buf_len += scnprintf(kfetch_buf + buf_len, KFETCH_BUF_SIZE - buf_len,
