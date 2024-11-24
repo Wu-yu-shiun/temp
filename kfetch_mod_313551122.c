@@ -11,6 +11,7 @@
 #include <linux/slab.h>
 #include <linux/mm.h>
 #include <linux/device.h>
+#include <linux/version.h>
 
 #define KFETCH_DEV_NAME "kfetch"
 #define KFETCH_BUF_SIZE 1024
