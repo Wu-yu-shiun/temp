@@ -3,16 +3,182 @@
 #include <linux/kernel.h>
 #include <linux/fs.h>
 #include <linux/uaccess.h>
+#include <linux/mutex.h>
+#include <linux/proc_fs.h>
+#include <linux/utsname.h>
+#include <linux/sched/signal.h>
+#include <linux/jiffies.h>
+#include <linux/slab.h> 
+
+#define KFETCH_DEV_NAME "kfetch"
+#define KFETCH_BUF_SIZE 1024
+
+#define KFETCH_RELEASE   (1 << 0)
+#define KFETCH_NUM_CPUS  (1 << 1)
+#define KFETCH_CPU_MODEL (1 << 2)
+#define KFETCH_MEM       (1 << 3)
+#define KFETCH_UPTIME    (1 << 4)
+#define KFETCH_NUM_PROCS (1 << 5)
+
+#define KFETCH_FULL_INFO ((1 << 6) - 1)
+
+// 全域變數
+static char *kfetch_buf;
+static int info_mask = KFETCH_FULL_INFO;
+static int major_number;
+static struct class *cls;
+static DEFINE_MUTEX(kfetch_mutex); // 使用 mutex 處理多線程安全
+
+// 設備文件操作 - read
+static ssize_t kfetch_read(struct file *file, char __user *user_buf, size_t len, loff_t *offset) {
+    int buf_len = 0;
+    struct sysinfo si;
+    struct task_struct *task;
+    int proc_count = 0;
+
+    if (*offset != 0) // 單次讀取
+        return 0;
+
+    mutex_lock(&kfetch_mutex);
+
+    // 輸出 logo
+    buf_len += scnprintf(kfetch_buf + buf_len, KFETCH_BUF_SIZE - buf_len,
+                         "  .--.\n"
+                         " (o.o)\n"
+                         " <  >\n"
+                         " /---\\\n"
+                         "( | | )\n"
+                         "\\\\_/__//\n"
+                         "<__|__>\n");
+
+    // 加入 hostname 和分隔線
+    buf_len += scnprintf(kfetch_buf + buf_len, KFETCH_BUF_SIZE - buf_len,
+                         "%s\n", utsname()->nodename);
+    buf_len += scnprintf(kfetch_buf + buf_len, KFETCH_BUF_SIZE - buf_len,
+                         "--------------------------\n");
+
+    // 根據 info_mask 選擇性輸出資訊
+    if (info_mask & KFETCH_RELEASE) {
+        buf_len += scnprintf(kfetch_buf + buf_len, KFETCH_BUF_SIZE - buf_len,
+                             "Kernel: %s\n", utsname()->release);
+    }
+
+    if (info_mask & KFETCH_CPU_MODEL) {
+        buf_len += scnprintf(kfetch_buf + buf_len, KFETCH_BUF_SIZE - buf_len,
+                             "CPU: QEMU Virtual CPU (example)\n");
+    }
+
+    if (info_mask & KFETCH_NUM_CPUS) {
+        buf_len += scnprintf(kfetch_buf + buf_len, KFETCH_BUF_SIZE - buf_len,
+                             "CPUs: %d / %d\n", num_online_cpus(), num_possible_cpus());
+    }
+
+    if (info_mask & KFETCH_MEM) {
+        si_meminfo(&si);
+        buf_len += scnprintf(kfetch_buf + buf_len, KFETCH_BUF_SIZE - buf_len,
+                             "Mem: %lu MB / %lu MB\n",
+                             si.freeram >> 10, si.totalram >> 10);
+    }
+
+    if (info_mask & KFETCH_NUM_PROCS) {
+        for_each_process(task)
+            proc_count++;
+        buf_len += scnprintf(kfetch_buf + buf_len, KFETCH_BUF_SIZE - buf_len,
+                             "Procs: %d\n", proc_count);
+    }
+
+    if (info_mask & KFETCH_UPTIME) {
+        buf_len += scnprintf(kfetch_buf + buf_len, KFETCH_BUF_SIZE - buf_len,
+                             "Uptime: %lu mins\n", jiffies_to_msecs(get_jiffies_64()) / 60000);
+    }
+
+    mutex_unlock(&kfetch_mutex);
+
+    if (copy_to_user(user_buf, kfetch_buf, buf_len))
+        return -EFAULT;
+
+    *offset = buf_len; // 更新偏移量
+    return buf_len;
+}
+
+// 設備文件操作 - write
+static ssize_t kfetch_write(struct file *file, const char __user *user_buf, size_t len, loff_t *offset) {
+    int mask_info;
+
+    if (len != sizeof(int))
+        return -EINVAL;
+
+    if (copy_from_user(&mask_info, user_buf, len))
+        return -EFAULT;
+
+    mutex_lock(&kfetch_mutex);
+    info_mask = mask_info; // 設定 info_mask
+    mutex_unlock(&kfetch_mutex);
+
+    return len;
+}
+
+// 設備文件操作 - open 和 release
+static int kfetch_open(struct inode *inode, struct file *file) {
+    return 0;
+}
+
+static int kfetch_release(struct inode *inode, struct file *file) {
+    return 0;
+}
+
+// 定義 file_operations
+static struct file_operations kfetch_ops = {
+    .owner = THIS_MODULE,
+    .read = kfetch_read,
+    .write = kfetch_write,
+    .open = kfetch_open,
+    .release = kfetch_release,
+};
+
+// 初始化模組
+static int __init kfetch_init(void) {
+    major_number = register_chrdev(0, KFETCH_DEV_NAME, &kfetch_ops);
+    if (major_number < 0) {
+        pr_alert("Failed to register device: %d\n", major_number);
+        return major_number;
+    }
+
+    cls = class_create(THIS_MODULE, KFETCH_DEV_NAME);
+    if (IS_ERR(cls)) {
+        unregister_chrdev(major_number, KFETCH_DEV_NAME);
+        return PTR_ERR(cls);
+    }
+
+    device_create(cls, NULL, MKDEV(major_number, 0), NULL, KFETCH_DEV_NAME);
+
+    kfetch_buf = kmalloc(KFETCH_BUF_SIZE, GFP_KERNEL); // 分配緩衝區
+    if (!kfetch_buf) {
+        device_destroy(cls, MKDEV(major_number, 0));
+        class_destroy(cls);
+        unregister_chrdev(major_number, KFETCH_DEV_NAME);
+        return -ENOMEM;
+    }
+
+    pr_info("kfetch module loaded with device major number %d\n", major_number);
+    return 0;
+}
+
+// 清理模組
+static void __exit kfetch_exit(void) {
+    kfree(kfetch_buf); // 釋放緩衝區
+    device_destroy(cls, MKDEV(major_number, 0));
+    class_destroy(cls);
+    unregister_chrdev(major_number, KFETCH_DEV_NAME);
+    pr_info("kfetch module unloaded\n");
+}
+
+module_init(kfetch_init);
+module_exit(kfetch_exit);
+
+MODULE_LICENSE("GPL");
+MODULE_AUTHOR("313551122");
+MODULE_DESCRIPTION("system information fetching and a linux logo");
 
 
 
-#define KFETCH_NUM_INFO      6
-
-#define KFETCH_RELEASE      (1 << 0)
-#define KFETCH_NUM_CPUS     (1 << 1)
-#define KFETCH_CPU_MODEL    (1 << 2)
-#define KFETCH_MEM          (1 << 3)
-#define KFETCH_UPTIME       (1 << 4)
-#define KFETCH_NUM_PROCS    (1 << 5)
-
-#define KFETCH_FULL_INFO    ((1 << KFETCH_NUM_INFO) - 1)
