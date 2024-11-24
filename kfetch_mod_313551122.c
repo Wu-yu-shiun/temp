@@ -49,7 +49,7 @@ static ssize_t kfetch_read(struct file *file, char __user *user_buf, size_t len,
                          "      .-.     \n"
                          "     (.. |    \n"
                          "     \033[33m<>\033[0m  |    \n"
-                         "    / --- \   \n"
+                         "    / --- \\   \n"
                          "   ( |   | )  \n"
                          " \033[33m|\\\033[0m_)__(_/\033[33m/|\033[0m \n"
                          "\033[33m<__)\033[0m------\033[33m(__>\033[0m\n");
