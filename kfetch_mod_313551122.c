@@ -32,7 +32,7 @@ static int major_number;
 static struct class *cls;
 static DEFINE_MUTEX(kfetch_mutex);
 
-static ssize_t kfetch_read(struct file *file, char __user *user_buf, size_t len, loff_t *offset) {
+static ssize_t kfetch_read(struct file *filp, char __user *buffer, size_t length, loff_t *offset){
     /* fetching the information */
     int buf_len = 0;
     struct sysinfo si;
@@ -101,7 +101,7 @@ static ssize_t kfetch_read(struct file *file, char __user *user_buf, size_t len,
 
     // mutex_unlock(&kfetch_mutex);
 
-    if (copy_to_user(user_buf, kfetch_buf, buf_len)){
+    if (copy_to_user(buffer, kfetch_buf, buf_len)){
         pr_alert("Failed to copy data to user");
         return 0;
     }
@@ -112,7 +112,7 @@ static ssize_t kfetch_read(struct file *file, char __user *user_buf, size_t len,
 }
 
 
-static ssize_t kfetch_write(struct file *file, const char __user *user_buf, size_t len, loff_t *offset) {
+static ssize_t kfetch_write(struct file *filp, const char __user *buffer, size_t length, loff_t *offset){
     int mask_info;
 
     if (copy_from_user(&mask_info, buffer, length)) {
@@ -126,6 +126,7 @@ static ssize_t kfetch_write(struct file *file, const char __user *user_buf, size
     // mutex_unlock(&kfetch_mutex);
     return len;
 }
+
 
 static int kfetch_open(struct inode *inode, struct file *file) {
     if (!mutex_trylock(&kfetch_mutex)) {
