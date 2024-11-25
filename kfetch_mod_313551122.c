@@ -117,7 +117,7 @@ static ssize_t kfetch_write(struct file *file, const char __user *user_buf, size
         return -EFAULT;
 
     mutex_lock(&kfetch_mutex);
-    info_mask = mask_info; // 設定 info_mask
+    info_mask = mask_info;
     mutex_unlock(&kfetch_mutex);
 
     return len;
