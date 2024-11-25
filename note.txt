@@ -32,6 +32,15 @@ static ssize_t kfetch_read(struct file *file, char __user *user_buf, size_t len,
     struct task_struct *task;
     int proc_count = 0;
     int line = 0
+    char linux_logo[7][20] = {
+        "         .-.        ",
+        "        (.. |       ",
+        "        \033[33m<>\033[0m  |       ",
+        "       / --- \\      ",
+        "      ( |   | )     ",
+        "    \033[33m|\\\033[0m_)__(_/\033[33m/|\033[0m    ",
+        "   \033[33m<__)\033[0m------\033[33m(__>\033[0m   "
+    };
 
     if (*offset != 0)
         return 0;
