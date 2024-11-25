@@ -15,6 +15,7 @@
 
 #define KFETCH_DEV_NAME "kfetch"
 #define KFETCH_BUF_SIZE 1024
+#define LINUX_LOGO_LINES 7
 
 #define KFETCH_RELEASE   (1 << 0)
 #define KFETCH_NUM_CPUS  (1 << 1)
@@ -92,7 +93,7 @@ static ssize_t kfetch_read(struct file *file, char __user *user_buf, size_t len,
         buf_len += scnprintf(kfetch_buf + buf_len, KFETCH_BUF_SIZE - buf_len,linux_logo[line++]);
     }
 
-    while(line<=7){
+    while(line <= LINUX_LOGO_LINES){
         buf_len += scnprintf(kfetch_buf + buf_len, KFETCH_BUF_SIZE - buf_len,"\n");
         buf_len += scnprintf(kfetch_buf + buf_len, KFETCH_BUF_SIZE - buf_len,linux_logo[line++]);
     }
