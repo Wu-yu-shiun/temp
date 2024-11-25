@@ -25,13 +25,11 @@
 
 #define KFETCH_FULL_INFO ((1 << 6) - 1)
 
-// 全域變數
 static char *kfetch_buf;
 static int info_mask = KFETCH_FULL_INFO;
 static int major_number;
 static struct class *cls;
-static DEFINE_MUTEX(kfetch_mutex); // 使用 mutex 處理多線程安全
-
+static DEFINE_MUTEX(kfetch_mutex);
 
 static ssize_t kfetch_read(struct file *file, char __user *user_buf, size_t len, loff_t *offset) {
     int buf_len = 0;
@@ -107,7 +105,8 @@ static ssize_t kfetch_read(struct file *file, char __user *user_buf, size_t len,
     *offset = buf_len;
     return buf_len;
 }
-// 設備文件操作 - write
+
+
 static ssize_t kfetch_write(struct file *file, const char __user *user_buf, size_t len, loff_t *offset) {
     int mask_info;
 
@@ -124,7 +123,6 @@ static ssize_t kfetch_write(struct file *file, const char __user *user_buf, size
     return len;
 }
 
-// 設備文件操作 - open 和 release
 static int kfetch_open(struct inode *inode, struct file *file) {
     return 0;
 }
@@ -133,7 +131,6 @@ static int kfetch_release(struct inode *inode, struct file *file) {
     return 0;
 }
 
-// 定義 file_operations
 static struct file_operations kfetch_ops = {
     .owner = THIS_MODULE,
     .read = kfetch_read,
@@ -150,9 +147,9 @@ static int __init kfetch_init(void) {
     }
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 4, 0)
-    cls = class_create(KFETCH_DEV_NAME); // 較新版本只需提供名稱
+    cls = class_create(KFETCH_DEV_NAME);
 #else
-    cls = class_create(THIS_MODULE, KFETCH_DEV_NAME); // 舊版本需要指定模組
+    cls = class_create(THIS_MODULE, KFETCH_DEV_NAME);
 #endif
     if (IS_ERR(cls)) {
         unregister_chrdev(major_number, KFETCH_DEV_NAME);
@@ -181,7 +178,7 @@ static int __init kfetch_init(void) {
 
 
 static void __exit kfetch_exit(void) {
-    kfree(kfetch_buf); // 釋放緩衝區
+    kfree(kfetch_buf);
     device_destroy(cls, MKDEV(major_number, 0));
     class_destroy(cls);
     unregister_chrdev(major_number, KFETCH_DEV_NAME);
@@ -193,7 +190,4 @@ module_exit(kfetch_exit);
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("313551122");
-MODULE_DESCRIPTION("system information fetching and a linux logo");
-
-
-
+MODULE_DESCRIPTION("system information fetching with a linux logo");
